@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from app.blueprints.auth.services import register_user, login_user
+from app.auth.services import register_user, login_user
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():

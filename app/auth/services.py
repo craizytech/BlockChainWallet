@@ -1,7 +1,7 @@
 import bcrypt
 from flask import jsonify
 from app.models.user import create_user, get_user_by_email
-from app.blueprints.auth.utils import create_jwt_token
+from app.auth.utils import create_jwt_token
 
 def register_user(data):
     email = data.get('email')
