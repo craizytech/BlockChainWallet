@@ -46,3 +46,15 @@ def delete_dashboard(user_id, data):
         return jsonify({"message": "Dashboard deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+def get_dashboard(user_id):
+    try:
+        conn = get_db_connection('system_db')
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM dashboards WHERE user_id = %s", (user_id,))
+        dashboards = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify({"dashboards": dashboards}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400

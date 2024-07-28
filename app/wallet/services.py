@@ -46,3 +46,15 @@ def delete_wallet(user_id, data):
         return jsonify({"message": "Wallet deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+def get_wallets(user_id):
+    try:
+        conn = get_db_connection('system_db')
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM monitored_wallets WHERE user_id = %s", (user_id,))
+        wallets = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify({"wallets": wallets}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400

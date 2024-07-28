@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.dashboard.services import create_dashboard, delete_dashboard
+from app.dashboard.services import create_dashboard, delete_dashboard, get_dashboard
 from app.dashboard import dashboard_bp
 
 @dashboard_bp.route('/create', methods=['POST'])
@@ -16,3 +16,9 @@ def delete():
     data = request.get_json()
     user_id = get_jwt_identity()
     return delete_dashboard(user_id, data)
+
+@dashboard_bp.route('/get', methods=['GET'])
+@jwt_required()
+def get():
+    user_id = get_jwt_identity()
+    return get_dashboard(user_id)
