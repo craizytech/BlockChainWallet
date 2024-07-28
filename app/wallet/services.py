@@ -12,8 +12,7 @@ def get_db_connection(db_name):
     )
     return conn
 
-def add_wallet(data):
-    user_id = data.get('user_id')
+def add_wallet(user_id, data):
     wallet_address = data.get('wallet_address')
     network = data.get('network')
     
@@ -31,19 +30,19 @@ def add_wallet(data):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-def remove_wallet(data):
+def delete_wallet(user_id, data):
     wallet_id = data.get('wallet_id')
     
     try:
         conn = get_db_connection('system_db')
         cur = conn.cursor()
         cur.execute(
-            "DELETE FROM monitored_wallets WHERE id = %s",
-            (wallet_id,)
+            "DELETE FROM monitored_wallets WHERE id = %s AND user_id = %s",
+            (wallet_id, user_id)
         )
         conn.commit()
         cur.close()
         conn.close()
-        return jsonify({"message": "Wallet removed successfully"}), 200
+        return jsonify({"message": "Wallet deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400

@@ -40,13 +40,13 @@ def login_user(data):
     try:
         conn = get_db_connection('system_db')
         cur = conn.cursor()
-        cur.execute("SELECT password FROM users WHERE email = %s", (email,))
+        cur.execute("SELECT id, password FROM users WHERE email = %s", (email,))
         user = cur.fetchone()
         cur.close()
         conn.close()
         
-        if user and check_password_hash(user[0], password):
-            access_token = create_access_token(identity=email)
+        if user and check_password_hash(user[1], password):
+            access_token = create_access_token(identity=user[0])
             return jsonify({"access_token": access_token}), 200
         else:
             return jsonify({"error": "Invalid credentials"}), 401
