@@ -5,6 +5,8 @@ from .auth import auth_bp
 from .wallet import wallet_bp
 from .dashboard import dashboard_bp
 from .monitoring import monitoring_bp
+from app.transactions import transactions_bp
+
 
 def create_app():
     app = Flask(__name__)
@@ -18,5 +20,6 @@ def create_app():
     app.register_blueprint(wallet_bp, url_prefix='/wallet')
     app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
     app.register_blueprint(monitoring_bp, url_prefix='/monitoring')
+    app.register_blueprint(transactions_bp, url_prefix='/transactions')
 
     return app
