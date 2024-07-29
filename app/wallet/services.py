@@ -15,6 +15,9 @@ def get_db_connection(db_name):
 def add_wallet(user_id, data):
     wallet_address = data.get('wallet_address')
     network = data.get('network')
+
+    if not wallet_address or not network:
+        return jsonify({"error": "wallet_address and network are required"}), 400
     
     try:
         conn = get_db_connection('system_db')

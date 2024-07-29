@@ -1,6 +1,8 @@
 import psycopg2
 from flask import jsonify
 from app.config import Config
+from datetime import datetime
+from flask_jwt_extended import create_access_token
 
 def get_db_connection(db_name):
     conn = psycopg2.connect(
@@ -13,78 +15,103 @@ def get_db_connection(db_name):
     return conn
 
 def send_eth(user_id, data):
-    sender_wallet_id = data.get('sender_wallet_id')
-    recipient_wallet_id = data.get('recipient_wallet_id')
-    amount_sent = data.get('amount_sent')
-    transaction_hash = data.get('transaction_hash')
-    # Other transaction details
-    
     try:
-        conn = get_db_connection('eth_db')
+        transaction_hash = data.get('transaction_hash')
+        wallet_assets = data.get('wallet_assets')
+        token_names = data.get('token_names')
+        value = data.get('value')
+        status = data.get('status')
+        block_number = data.get('block_number')
+        fee = data.get('fee')
+        transaction_index = data.get('transaction_index')
+        input_data = data.get('input_data')
+        signatures = data.get('signatures')
+        timestamp = datetime.now()  # Current timestamp
+
+        if not transaction_hash or not wallet_assets or not value or not timestamp:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        conn = get_db_connection(Config.ETH_DB_NAME)
         cur = conn.cursor()
+
         cur.execute(
-            "INSERT INTO eth_blockchain_transactions (transaction_hash, timestamp, block_number, transaction_index) VALUES (%s, now(), %s, %s) RETURNING id",
-            (transaction_hash, data.get('block_number'), data.get('transaction_index'))
+            "INSERT INTO eth_blockchain_transactions (transaction_hash, wallet_assets, token_names, value, timestamp, status, block_number, fee, transaction_index, input_data, signatures) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (transaction_hash, wallet_assets, token_names, value, timestamp, status, block_number, fee, transaction_index, input_data, signatures)
         )
         transaction_id = cur.fetchone()[0]
-        
-        cur.execute(
-            "INSERT INTO eth_transaction_inputs (transaction_id, sender_wallet_id, amount_sent) VALUES (%s, %s, %s)",
-            (transaction_id, sender_wallet_id, amount_sent)
-        )
-        
-        cur.execute(
-            "INSERT INTO eth_transaction_outputs (transaction_id, recipient_wallet_id, amount_received) VALUES (%s, %s, %s)",
-            (transaction_id, recipient_wallet_id, amount_sent)  # assuming amount_sent equals amount_received for simplicity
-        )
-        
+
+        sender_wallet_id = data.get('sender_wallet_id')
+        recipient_wallet_id = data.get('recipient_wallet_id')
+        amount_sent = data.get('amount_sent')
+        amount_received = data.get('amount_received')
+
+        if sender_wallet_id and amount_sent:
+            cur.execute(
+                "INSERT INTO eth_transaction_inputs (transaction_id, sender_wallet_id, amount_sent) VALUES (%s, %s, %s)",
+                (transaction_id, sender_wallet_id, amount_sent)
+            )
+
+        if recipient_wallet_id and amount_received:
+            cur.execute(
+                "INSERT INTO eth_transaction_outputs (transaction_id, recipient_wallet_id, amount_received) VALUES (%s, %s, %s)",
+                (transaction_id, recipient_wallet_id, amount_received)
+            )
+
         conn.commit()
         cur.close()
         conn.close()
-        return jsonify({"message": "ETH transaction sent successfully"}), 201
+        return jsonify({"message": "Transaction sent successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-def receive_eth(user_id, data):
-    # Implement receive ETH logic if different from send_eth
-    pass
 
 def send_solana(user_id, data):
-    sender_wallet_id = data.get('sender_wallet_id')
-    recipient_wallet_id = data.get('recipient_wallet_id')
-    amount_sent = data.get('amount_sent')
-    transaction_hash = data.get('transaction_hash')
-    # Other transaction details
-    
     try:
-        conn = get_db_connection('solana_db')
+        transaction_hash = data.get('transaction_hash')
+        wallet_assets = data.get('wallet_assets')
+        token_names = data.get('token_names')
+        timestamp = datetime.now()  # Current timestamp
+        block_number = data.get('block_number')
+        fee = data.get('fee')
+        transaction_index = data.get('transaction_index')
+        program_data = data.get('program_data')
+        signatures = data.get('signatures')
+
+        if not transaction_hash or not wallet_assets or not timestamp:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        conn = get_db_connection(Config.SOLANA_DB_NAME)
         cur = conn.cursor()
+
         cur.execute(
-            "INSERT INTO solana_blockchain_transactions (transaction_hash, timestamp, block_number, transaction_index) VALUES (%s, now(), %s, %s) RETURNING id",
-            (transaction_hash, data.get('block_number'), data.get('transaction_index'))
+            "INSERT INTO solana_blockchain_transactions (transaction_hash, wallet_assets, token_names, timestamp, block_number, fee, transaction_index, program_data, signatures) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (transaction_hash, wallet_assets, token_names, timestamp, block_number, fee, transaction_index, program_data, signatures)
         )
         transaction_id = cur.fetchone()[0]
-        
-        cur.execute(
-            "INSERT INTO solana_transaction_inputs (transaction_id, sender_wallet_id, amount_sent) VALUES (%s, %s, %s)",
-            (transaction_id, sender_wallet_id, amount_sent)
-        )
-        
-        cur.execute(
-            "INSERT INTO solana_transaction_outputs (transaction_id, recipient_wallet_id, amount_received) VALUES (%s, %s, %s)",
-            (transaction_id, recipient_wallet_id, amount_sent)  # assuming amount_sent equals amount_received for simplicity
-        )
-        
+
+        sender_wallet_id = data.get('sender_wallet_id')
+        recipient_wallet_id = data.get('recipient_wallet_id')
+        amount_sent = data.get('amount_sent')
+        amount_received = data.get('amount_received')
+
+        if sender_wallet_id and amount_sent:
+            cur.execute(
+                "INSERT INTO solana_transaction_inputs (transaction_id, sender_wallet_id, amount_sent) VALUES (%s, %s, %s)",
+                (transaction_id, sender_wallet_id, amount_sent)
+            )
+
+        if recipient_wallet_id and amount_received:
+            cur.execute(
+                "INSERT INTO solana_transaction_outputs (transaction_id, recipient_wallet_id, amount_received) VALUES (%s, %s, %s)",
+                (transaction_id, recipient_wallet_id, amount_received)
+            )
+
         conn.commit()
         cur.close()
         conn.close()
-        return jsonify({"message": "Solana transaction sent successfully"}), 201
+        return jsonify({"message": "Transaction sent successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-def receive_solana(user_id, data):
-    # Implement receive Solana logic if different from send_solana
-    pass
 
 def get_transactions(user_id, wallet_address):
     try:

@@ -10,12 +10,12 @@ def send_eth_transaction():
     user_id = get_jwt_identity()
     return send_eth(user_id, data)
 
-@transactions_bp.route('/receive_eth', methods=['POST'])
-@jwt_required()
-def receive_eth_transaction():
-    data = request.get_json()
-    user_id = get_jwt_identity()
-    return receive_eth(user_id, data)
+# @transactions_bp.route('/receive_eth', methods=['POST'])
+# @jwt_required()
+# def receive_eth_transaction():
+#     data = request.get_json()
+#     user_id = get_jwt_identity()
+#     return receive_eth(user_id, data)
 
 @transactions_bp.route('/send_solana', methods=['POST'])
 @jwt_required()
@@ -24,12 +24,12 @@ def send_solana_transaction():
     user_id = get_jwt_identity()
     return send_solana(user_id, data)
 
-@transactions_bp.route('/receive_solana', methods=['POST'])
-@jwt_required()
-def receive_solana_transaction():
-    data = request.get_json()
-    user_id = get_jwt_identity()
-    return receive_solana(user_id, data)
+# @transactions_bp.route('/receive_solana', methods=['POST'])
+# @jwt_required()
+# def receive_solana_transaction():
+#     data = request.get_json()
+#     user_id = get_jwt_identity()
+#     return receive_solana(user_id, data)
 
 @transactions_bp.route('/get_transactions', methods=['GET'])
 @jwt_required()
