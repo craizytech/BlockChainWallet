@@ -43,7 +43,7 @@ def check_dashboard_exists(user_id, dashboard_id):
     except Exception as e:
         return False
 
-def add_wallet_to_dashboard(user_id, dashboard_id, wallet_address, network):
+def add_wallet(user_id, dashboard_id, wallet_address, network):
     if not check_dashboard_exists(user_id, dashboard_id):
         return jsonify({"error": "Dashboard does not exist or does not belong to the user"}), 400
     
