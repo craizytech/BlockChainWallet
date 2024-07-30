@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.transactions.services import send_eth, receive_eth, send_solana, receive_solana, get_transactions
+from app.transactions.services import send_eth, send_solana, get_transactions
 from app.transactions import transactions_bp
 
 @transactions_bp.route('/send_eth', methods=['POST'])
@@ -10,13 +10,6 @@ def send_eth_transaction():
     user_id = get_jwt_identity()
     return send_eth(user_id, data)
 
-# @transactions_bp.route('/receive_eth', methods=['POST'])
-# @jwt_required()
-# def receive_eth_transaction():
-#     data = request.get_json()
-#     user_id = get_jwt_identity()
-#     return receive_eth(user_id, data)
-
 @transactions_bp.route('/send_solana', methods=['POST'])
 @jwt_required()
 def send_solana_transaction():
@@ -24,12 +17,6 @@ def send_solana_transaction():
     user_id = get_jwt_identity()
     return send_solana(user_id, data)
 
-# @transactions_bp.route('/receive_solana', methods=['POST'])
-# @jwt_required()
-# def receive_solana_transaction():
-#     data = request.get_json()
-#     user_id = get_jwt_identity()
-#     return receive_solana(user_id, data)
 
 @transactions_bp.route('/get_transactions', methods=['GET'])
 @jwt_required()

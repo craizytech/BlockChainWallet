@@ -16,6 +16,8 @@ def get_db_connection(db_name):
 
 def send_eth(user_id, data):
     try:
+        print("Received data:", data)  # Debugging line
+
         transaction_hash = data.get('transaction_hash')
         wallet_assets = data.get('wallet_assets')
         token_names = data.get('token_names')
@@ -28,6 +30,16 @@ def send_eth(user_id, data):
         signatures = data.get('signatures')
         timestamp = datetime.now()  # Current timestamp
 
+        # Debugging: Check if all required fields are present
+        if not transaction_hash:
+            print("Missing transaction_hash")
+        if not wallet_assets:
+            print("Missing wallet_assets")
+        if not value:
+            print("Missing value")
+        if not timestamp:
+            print("Missing timestamp")
+
         if not transaction_hash or not wallet_assets or not value or not timestamp:
             return jsonify({"error": "Missing required fields"}), 400
 
@@ -36,7 +48,7 @@ def send_eth(user_id, data):
 
         cur.execute(
             "INSERT INTO eth_blockchain_transactions (transaction_hash, wallet_assets, token_names, value, timestamp, status, block_number, fee, transaction_index, input_data, signatures) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-            (transaction_hash, wallet_assets, token_names, value, timestamp, status, block_number, fee, transaction_index, input_data, signatures)
+            (transaction_hash, wallet_assets, token_names, value, timestamp, status, block_number, fee, transaction_index, input_data, json.dumps(signatures))
         )
         transaction_id = cur.fetchone()[0]
 
@@ -64,17 +76,28 @@ def send_eth(user_id, data):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+
 def send_solana(user_id, data):
     try:
+        print("Received data:", data)  # Debugging line
+
         transaction_hash = data.get('transaction_hash')
         wallet_assets = data.get('wallet_assets')
         token_names = data.get('token_names')
-        timestamp = datetime.now()  # Current timestamp
+        timestamp = data.get('timestamp')
         block_number = data.get('block_number')
         fee = data.get('fee')
         transaction_index = data.get('transaction_index')
         program_data = data.get('program_data')
         signatures = data.get('signatures')
+
+        # Debugging
+        if not transaction_hash:
+            print("Missing transaction_hash")
+        if not wallet_assets:
+            print("Missing wallet_assets")
+        if not timestamp:
+            print("Missing timestamp")
 
         if not transaction_hash or not wallet_assets or not timestamp:
             return jsonify({"error": "Missing required fields"}), 400
@@ -84,7 +107,7 @@ def send_solana(user_id, data):
 
         cur.execute(
             "INSERT INTO solana_blockchain_transactions (transaction_hash, wallet_assets, token_names, timestamp, block_number, fee, transaction_index, program_data, signatures) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-            (transaction_hash, wallet_assets, token_names, timestamp, block_number, fee, transaction_index, program_data, signatures)
+            (transaction_hash, wallet_assets, token_names, timestamp, block_number, fee, transaction_index, program_data, json.dumps(signatures))
         )
         transaction_id = cur.fetchone()[0]
 
