@@ -20,9 +20,13 @@ def create_dashboard_route():
 @dashboard_bp.route('/add_wallet', methods=['POST'])
 @jwt_required()
 def add_wallet_route():
-    data = request.get_json()
     user_id = get_jwt_identity()
-    return add_wallet(user_id, data)
+    data = request.get_json()
+    dashboard_id = data.get('dashboard_id')
+    wallet_address = data.get('wallet_address')
+    network = data.get('network')
+    
+    return add_wallet(user_id, dashboard_id, wallet_address, network)
 
 @dashboard_bp.route('/delete_dashboard', methods=['DELETE'])
 @jwt_required()
