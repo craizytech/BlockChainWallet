@@ -31,10 +31,21 @@ def create_dashboard(user_id, data):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-def add_wallet(user_id, data):
-    dashboard_id = data.get('dashboard_id')
-    wallet_address = data.get('wallet_address')
-    network = data.get('network')
+def check_dashboard_exists(user_id, dashboard_id):
+    try:
+        conn = get_db_connection('system_db')
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM dashboards WHERE id = %s AND user_id = %s", (dashboard_id, user_id))
+        dashboard = cur.fetchone()
+        cur.close()
+        conn.close()
+        return dashboard is not None
+    except Exception as e:
+        return False
+
+def add_wallet_to_dashboard(user_id, dashboard_id, wallet_address, network):
+    if not check_dashboard_exists(user_id, dashboard_id):
+        return jsonify({"error": "Dashboard does not exist or does not belong to the user"}), 400
     
     try:
         conn = get_db_connection('system_db')
@@ -46,9 +57,10 @@ def add_wallet(user_id, data):
         conn.commit()
         cur.close()
         conn.close()
-        return jsonify({"message": "Wallet added successfully"}), 201
+        return jsonify({"message": "Wallet added to dashboard successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 def delete_dashboard(user_id, data):
     dashboard_id = data.get('dashboard_id')
