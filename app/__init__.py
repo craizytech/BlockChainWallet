@@ -10,13 +10,15 @@ from app.transactions import transactions_bp
 
 def create_app():
     app = Flask(__name__)
+
+    # Enable CORS
+    CORS(app)  #allows all origins
+
     app.config.from_object(Config)
 
     # Initialize JWT
     jwt.init_app(app)
 
-    # Enable CORS
-    CORS(app)  # Default allows all origins
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
