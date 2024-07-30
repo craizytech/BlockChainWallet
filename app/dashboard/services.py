@@ -83,3 +83,35 @@ def stop_monitoring(user_id, data):
         return jsonify({"message": "Monitoring stopped"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+def get_dashboards(user_id):
+    try:
+        conn = get_db_connection('system_db')
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                d.id, d.name, d.type, mw.wallet_address, mw.network
+            FROM 
+                dashboards d
+            LEFT JOIN 
+                monitored_wallets mw ON d.id = mw.dashboard_id
+            WHERE 
+                d.user_id = %s
+        """, (user_id,))
+        dashboards = cur.fetchall()
+        cur.close()
+        conn.close()
+        
+        dashboards_list = []
+        for dashboard in dashboards:
+            dashboards_list.append({
+                "dashboard_id": dashboard[0],
+                "name": dashboard[1],
+                "type": dashboard[2],
+                "wallet_address": dashboard[3],
+                "network": dashboard[4]
+            })
+        
+        return jsonify({"dashboards": dashboards_list}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400

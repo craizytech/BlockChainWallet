@@ -5,7 +5,8 @@ from app.dashboard.services import (
     add_wallet,
     delete_dashboard,
     start_monitoring,
-    stop_monitoring
+    stop_monitoring,
+    get_dashboards
 )
 from app.dashboard import dashboard_bp
 
@@ -43,3 +44,9 @@ def stop_monitoring_route():
     data = request.get_json()
     user_id = get_jwt_identity()
     return stop_monitoring(user_id, data)
+
+@dashboard_bp.route('/get_dashboards', methods=['GET'])
+@jwt_required()
+def get_dashboards_route():
+    user_id = get_jwt_identity()
+    return get_dashboards(user_id)

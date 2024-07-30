@@ -1,23 +1,25 @@
 from flask import Flask
-from .config import Config
-from .extensions import jwt
-from .auth import auth_bp
-from .wallet import wallet_bp
-from .dashboard import dashboard_bp
-from .monitoring import monitoring_bp
+from flask_jwt_extended import JWTManager
+from flask_cors import CORS  # Import CORS
+from app.config import Config
+from app.extensions import jwt
+from app.auth import auth_bp
+from app.dashboard import dashboard_bp
+from app.monitoring import monitoring_bp
 from app.transactions import transactions_bp
-
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Initialize extensions
+    # Initialize JWT
     jwt.init_app(app)
 
-    # Register blueprints
+    # Enable CORS
+    CORS(app)  # Default allows all origins
+
+    # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(wallet_bp, url_prefix='/wallet')
     app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
     app.register_blueprint(monitoring_bp, url_prefix='/monitoring')
     app.register_blueprint(transactions_bp, url_prefix='/transactions')
