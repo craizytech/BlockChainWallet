@@ -103,10 +103,12 @@ databases = {
         CREATE TABLE IF NOT EXISTS monitored_wallets (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            dashboard_id INTEGER REFERENCES dashboards(id) ON DELETE CASCADE,
             wallet_address VARCHAR(255) NOT NULL,
             network VARCHAR(50) NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );
+
 
         CREATE TABLE IF NOT EXISTS transaction_data (
             id SERIAL PRIMARY KEY,
