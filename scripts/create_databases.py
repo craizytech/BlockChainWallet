@@ -1,11 +1,12 @@
 import psycopg2
 from psycopg2 import sql
+from app.config import Config
 
 # Database connection parameters
-db_host = 'localhost'
-db_user = 'postgres'
-db_password = 'password'
-db_port = '5432'
+db_host = Config.DB_HOST
+db_user = Config.DB_USER
+db_password = Config.DB_PASSWORD
+db_port = Config.DB_PORT
 
 # Database names and creation queries
 databases = {
