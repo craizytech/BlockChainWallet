@@ -4,7 +4,7 @@ from psycopg2 import sql
 # Database connection parameters
 db_host = 'localhost'
 db_user = 'postgres'
-db_password = 'password'
+db_password = 'manu3326'
 db_port = '5432'
 
 # Database names and creation queries
