@@ -8,3 +8,5 @@ class Config:
     DB_PASSWORD = 'password'
     DB_HOST = 'localhost'
     DB_PORT = '5432'
+    ETH_API_URL = 'https://eth.drpc.org'
+    SOLANA_API_URL = 'https://api.devnet.solana.com'

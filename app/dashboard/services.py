@@ -1,5 +1,5 @@
 import psycopg2
-from flask import jsonify
+from flask import jsonify, current_app
 from app.config import Config
 
 def get_db_connection(db_name):
@@ -12,24 +12,61 @@ def get_db_connection(db_name):
     )
     return conn
 
-def create_dashboard(user_id, data):
+def create_dashboard_and_add_wallet(user_id, data):
     name = data.get('name')
-    dashboard_type = data.get('type')
+    network = data.get('network')
+    wallet_address = data.get('wallet_address')
     
+    if not name or not network or not wallet_address:
+        return jsonify({"error": "Name, network, and wallet address are required"}), 400
+
     try:
         conn = get_db_connection('system_db')
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO dashboards (user_id, name, type) VALUES (%s, %s, %s) RETURNING id",
-            (user_id, name, dashboard_type)
+            (user_id, name, network)
         )
         dashboard_id = cur.fetchone()[0]
+        
+        cur.execute(
+            "INSERT INTO monitored_wallets (user_id, dashboard_id, wallet_address, network) VALUES (%s, %s, %s, %s)",
+            (user_id, dashboard_id, wallet_address, network)
+        )
+        
         conn.commit()
         cur.close()
         conn.close()
-        return jsonify({"message": "Dashboard created successfully", "dashboard_id": dashboard_id}), 201
+
+        if network.lower() == 'solana':
+            add_wallet_to_network('solana_db', wallet_address)
+        elif network.lower() == 'ethereum':
+            add_wallet_to_network('eth_db', wallet_address)
+        
+        return jsonify({"message": "Dashboard and wallet created successfully", "dashboard_id": dashboard_id}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+def add_wallet_to_network(db_name, wallet_address):
+    try:
+        conn = get_db_connection(db_name)
+        cur = conn.cursor()
+        if db_name == 'solana_db':
+            cur.execute(
+                "INSERT INTO solana_wallets (wallet_address) VALUES (%s) ON CONFLICT (wallet_address) DO NOTHING",
+                (wallet_address,)
+            )
+        elif db_name == 'eth_db':
+            cur.execute(
+                "INSERT INTO eth_wallets (wallet_address) VALUES (%s) ON CONFLICT (wallet_address) DO NOTHING",
+                (wallet_address,)
+            )
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        current_app.logger.error(f"Error adding wallet to {db_name}: {e}")
+        raise
 
 def check_dashboard_exists(user_id, dashboard_id):
     try:
@@ -43,25 +80,6 @@ def check_dashboard_exists(user_id, dashboard_id):
     except Exception as e:
         return False
 
-def add_wallet(user_id, dashboard_id, wallet_address, network):
-    if not check_dashboard_exists(user_id, dashboard_id):
-        return jsonify({"error": "Dashboard does not exist or does not belong to the user"}), 400
-    
-    try:
-        conn = get_db_connection('system_db')
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO monitored_wallets (user_id, dashboard_id, wallet_address, network) VALUES (%s, %s, %s, %s)",
-            (user_id, dashboard_id, wallet_address, network)
-        )
-        conn.commit()
-        cur.close()
-        conn.close()
-        return jsonify({"message": "Wallet added to dashboard successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
 def delete_dashboard(user_id, data):
     dashboard_id = data.get('dashboard_id')
     
@@ -73,26 +91,6 @@ def delete_dashboard(user_id, data):
         cur.close()
         conn.close()
         return jsonify({"message": "Dashboard deleted successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-def start_monitoring(user_id, data):
-    dashboard_id = data.get('dashboard_id')
-    
-    # Assuming you have some function to start monitoring the wallet
-    try:
-        # Start monitoring logic here
-        return jsonify({"message": "Monitoring started"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-def stop_monitoring(user_id, data):
-    dashboard_id = data.get('dashboard_id')
-    
-    # Assuming you have some function to stop monitoring the wallet
-    try:
-        # Stop monitoring logic here
-        return jsonify({"message": "Monitoring stopped"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
