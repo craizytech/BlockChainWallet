@@ -1,13 +1,14 @@
 import requests
 import json
 import asyncio
+from app.config import Config
 
 # Solana endpoint URL
-SOLANA_URL = "https://api.devnet.solana.com"
+SOLANA_URL = Config.SOLANA_API_URL
 
 # Function to fetch transactions for Solana (This is a placeholder function. You need to implement Solana-specific logic)
 async def fetch_solana_transactions(wallet_address):
-    # Implement the logic to fetch Solana transactions
+    # logic to fetch Solana transactions
     return []
 
 async def monitor_solana_wallet(wallet_address, db_conn):
@@ -15,7 +16,7 @@ async def monitor_solana_wallet(wallet_address, db_conn):
         transactions = await fetch_solana_transactions(wallet_address)
         if transactions:
             print(json.dumps(transactions, indent=4))
-            # Here you should write code to insert these transactions into the solana_transactions table
+            # write code to insert these transactions into the solana_transactions table
             cur = db_conn.cursor()
             for tx in transactions:
                 cur.execute(
