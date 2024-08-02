@@ -5,7 +5,6 @@ from app.config import Config
 from app.extensions import jwt, cors
 from app.auth import auth_bp
 from app.dashboard import dashboard_bp
-from app.monitoring import monitoring_bp
 from app.transactions import transactions_bp
 
 def create_app():
@@ -22,7 +21,6 @@ def create_app():
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
-    app.register_blueprint(monitoring_bp, url_prefix='/monitoring')
     app.register_blueprint(transactions_bp, url_prefix='/transactions')
 
     return app

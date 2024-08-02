@@ -4,9 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from app.config import Config
 
-def get_db_connection(db_name):
+def get_db_connection():
     conn = psycopg2.connect(
-        dbname=db_name,
+        dbname=Config.DB_NAME,
         user=Config.DB_USER,
         password=Config.DB_PASSWORD,
         host=Config.DB_HOST,
@@ -20,7 +20,7 @@ def register_user(data):
     hashed_password = generate_password_hash(password)
     
     try:
-        conn = get_db_connection('system_db')
+        conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO users (email, password) VALUES (%s, %s)",
@@ -30,6 +30,8 @@ def register_user(data):
         cur.close()
         conn.close()
         return jsonify({"message": "User registered successfully"}), 201
+    except psycopg2.errors.UniqueViolation:
+        return jsonify({"error": "User already exists"}), 409
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -38,7 +40,7 @@ def login_user(data):
     password = data.get('password')
     
     try:
-        conn = get_db_connection('system_db')
+        conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT id, password FROM users WHERE email = %s", (email,))
         user = cur.fetchone()
