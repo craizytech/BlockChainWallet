@@ -72,7 +72,7 @@ async def monitor_eth_wallet(wallet_address, db_conn):
         transactions = await fetch_transactions(wallet_address)
         if transactions:
             print(json.dumps(transactions, indent=4))
-            # Here you should write code to insert these transactions into the eth_transactions table
+            # code to insert data into the table
             cur = db_conn.cursor()
             for tx in transactions:
                 cur.execute(

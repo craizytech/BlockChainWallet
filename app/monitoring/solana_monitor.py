@@ -56,7 +56,7 @@ async def fetch_solana_transactions(wallet_address, db_conn):
                 to_address = transaction_details["transaction"]["message"]["accountKeys"][1]
                 value = transaction_details["meta"]["postBalances"][1] - transaction_details["meta"]["preBalances"][1]
                 gas = transaction_details["meta"]["fee"]
-                gas_price = 0  # Solana does not have a gas price like Ethereum
+                gas_price = 0  # Solana does not have a gas price like Ethereum so I am setting it at 0
                 timestamp = convert_timestamp(transaction_details["blockTime"])
 
                 if from_address == wallet_address or to_address == wallet_address:

@@ -8,7 +8,6 @@ db_password = 'password'
 db_port = '5432'
 db_name = 'blockchain_monitoring'
 
-# SQL script to create the tables
 create_tables_sql = """
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
