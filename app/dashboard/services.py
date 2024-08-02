@@ -29,8 +29,8 @@ def create_dashboard(user_id, name, network_type, wallet_address):
             return jsonify({"error": "Wallet address already exists in another dashboard"}), 409
 
         cur.execute(
-            "INSERT INTO dashboards (user_id, name, network, created_at) VALUES (%s, %s, %s, %s) RETURNING id",
-            (user_id, name, network_type, created_at)
+            "INSERT INTO dashboards (user_id, name, network, wallet_address, created_at) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (user_id, name, network_type, wallet_address, created_at)
         )
         dashboard_id = cur.fetchone()[0]
         cur.execute(
@@ -49,7 +49,7 @@ def get_dashboards(user_id):
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
-            "SELECT id, name, network, created_at FROM dashboards WHERE user_id = %s",
+            "SELECT id, name, network, created_at, wallet_address FROM dashboards WHERE user_id = %s",
             (user_id,)
         )
         dashboards = cur.fetchall()
@@ -60,7 +60,8 @@ def get_dashboards(user_id):
                 "id": dashboard[0],
                 "name": dashboard[1],
                 "network": dashboard[2],
-                "created_at": dashboard[3]
+                "created_at": dashboard[3],
+                "wallet_address": dashboard[4]
             } for dashboard in dashboards
         ]
         return jsonify(dashboards_list), 200

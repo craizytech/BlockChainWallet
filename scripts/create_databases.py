@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS dashboards (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     network VARCHAR(50) NOT NULL,
+    wallet_address VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
